@@ -1,0 +1,294 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║           CODE-REVIEW-GRAPH - HOW TO USE (विस्तृत गाइड)                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+🚀 QUICK START (30 सेकंड)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+from code_review_graph import CodeReviewGraph, ReviewAnalyzer
+
+crg = CodeReviewGraph()
+crg.add_reviewer("राज", ["Python"])
+crg.add_code_file("app.py")
+crg.add_review("राज", "app.py", "approved")
+
+analyzer = ReviewAnalyzer(crg)
+print(analyzer.get_review_stats())
+
+📋 MAIN COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  Reviewer जोड़ें:
+    crg.add_reviewer(name, [skills])
+    crg.add_reviewer("राज", ["Python", "Backend"])
+
+2️⃣  File जोड़ें:
+    crg.add_code_file(filename)
+    crg.add_code_file("app.py")
+
+3️⃣  Review जोड़ें:
+    crg.add_review(reviewer, file, status)
+    crg.add_review("राज", "app.py", "approved")
+
+4️⃣  File के Reviewers खोजें:
+    crg.get_reviewers_for_file(filename)
+    reviewers = crg.get_reviewers_for_file("app.py")
+
+5️⃣  Reviewer की Files खोजें:
+    crg.get_files_for_reviewer(reviewer)
+    files = crg.get_files_for_reviewer("राज")
+
+6️⃣  Stats देखें:
+    analyzer.get_review_stats()
+    analyzer.get_reviewer_workload()
+    analyzer.get_file_review_count()
+
+📊 EXAMPLE WORKFLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Step 1: Create Graph
+crg = CodeReviewGraph()
+
+# Step 2: Add Team Members
+crg.add_reviewer("अमित", ["Python", "Backend"])
+crg.add_reviewer("बीना", ["React", "Frontend"])
+crg.add_reviewer("चेतन", ["Database"])
+
+# Step 3: Add Code Files
+crg.add_code_file("models.py")
+crg.add_code_file("views.py")
+crg.add_code_file("dashboard.jsx")
+
+# Step 4: Add Reviews
+crg.add_review("अमित", "models.py", "approved")
+crg.add_review("अमित", "views.py", "pending")
+crg.add_review("बीना", "dashboard.jsx", "approved")
+crg.add_review("चेतन", "models.py", "approved")
+
+# Step 5: Analyze
+analyzer = ReviewAnalyzer(crg)
+
+print("📊 Statistics:")
+print(analyzer.get_review_stats())
+
+print("\n👥 Workload:")
+print(analyzer.get_reviewer_workload())
+
+print("\n📁 File Coverage:")
+print(analyzer.get_file_review_count())
+
+✨ COMMON USE CASES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+USE CASE 1: Check Reviewer's Workload
+    workload = analyzer.get_reviewer_workload()
+    for reviewer, count in workload.items():
+        print(f"{reviewer}: {count} reviews")
+
+USE CASE 2: Check File Coverage
+    file_counts = analyzer.get_file_review_count()
+    for file, count in file_counts.items():
+        if count < 2:
+            print(f"⚠️  {file} needs more reviewers")
+
+USE CASE 3: Find Overloaded Reviewer
+    workload = analyzer.get_reviewer_workload()
+    busiest = max(workload, key=workload.get)
+    print(f"Most busy: {busiest}")
+
+USE CASE 4: Find Available Reviewer
+    workload = analyzer.get_reviewer_workload()
+    least_busy = min(workload, key=workload.get)
+    print(f"Most available: {least_busy}")
+
+USE CASE 5: Generate Weekly Report
+    stats = analyzer.get_review_stats()
+    print(f"This week: {stats['total_reviews']} reviews")
+    print(f"Team: {stats['total_reviewers']} members")
+
+🎯 STATUS TYPES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+"pending"       → Wait for review
+"approved"      → Code is good
+"rejected"      → Changes needed
+"needs_changes" → Custom status
+"in_progress"   → Custom status
+"rework"        → Custom status
+
+💡 PRO TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TIP 1: Batch Add Files
+    files = ["auth.py", "models.py", "views.py"]
+    for f in files:
+        crg.add_code_file(f)
+
+TIP 2: Batch Add Reviewers
+    team = {
+        "राज": ["Python"],
+        "प्रिया": ["React"],
+        "रोहन": ["DevOps"]
+    }
+    for name, skills in team.items():
+        crg.add_reviewer(name, skills)
+
+TIP 3: Batch Add Reviews
+    reviews = [
+        ("राज", "app.py", "approved"),
+        ("प्रिया", "ui.jsx", "pending"),
+    ]
+    for reviewer, file, status in reviews:
+        crg.add_review(reviewer, file, status)
+
+TIP 4: Loop through Results
+    reviewers = crg.get_reviewers_for_file("app.py")
+    for reviewer in reviewers:
+        print(f"✓ {reviewer} reviewed this")
+
+TIP 5: Find Expertise
+    def find_experts(crg, skill):
+        experts = []
+        for node in crg.graph.nodes():
+            if crg.graph.nodes[node].get('type') == 'reviewer':
+                skills = crg.graph.nodes[node].get('expertise', [])
+                if skill in skills:
+                    experts.append(node)
+        return experts
+
+    python_experts = find_experts(crg, "Python")
+
+⚠️  COMMON MISTAKES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ WRONG: Typo in reviewer name
+    crg.add_reviewer("Raj")
+    crg.add_review("raj", "app.py")  # ← Different spelling!
+
+✅ RIGHT: Keep spelling consistent
+    crg.add_reviewer("राज")
+    crg.add_review("राज", "app.py")  # ← Same spelling
+
+❌ WRONG: Typo in file name
+    crg.add_code_file("models.py")
+    crg.add_review("राज", "Model.py")  # ← Different spelling!
+
+✅ RIGHT: Check spelling
+    crg.add_code_file("models.py")
+    crg.add_review("राज", "models.py")  # ← Correct
+
+📚 AVAILABLE DOCUMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. HOW_TO_USE.md          - विस्तृत गाइड (1000+ lines)
+2. QUICK_REFERENCE.md     - तेज़ रेफरेंस
+3. EXAMPLES.py            - 5 Practical Examples
+4. INSTALLATION_INFO.md   - Installation Details
+5. INSTALLATION_SUMMARY.txt - Installation Report
+
+🎓 LEARNING PATH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BEGINNER (15 min):
+  1. Basic setup (add_reviewer, add_code_file, add_review)
+  2. Run get_review_stats()
+  3. Check workload
+
+INTERMEDIATE (30 min):
+  4. Create a full team
+  5. Add multiple reviews
+  6. Analyze coverage
+
+ADVANCED (1 hour):
+  7. Multiple projects
+  8. Workload balancing
+  9. Generate reports
+  10. Find bottlenecks
+
+🔍 DEBUGGING TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Check all reviewers:
+  workload = analyzer.get_reviewer_workload()
+  print(list(workload.keys()))
+
+Check all files:
+  all_files = [n for n in crg.graph.nodes() 
+               if crg.graph.nodes[n].get('type') == 'file']
+  print(all_files)
+
+Check specific reviewer's files:
+  files = crg.get_files_for_reviewer("राज")
+  print(files)
+
+Check specific file's reviewers:
+  reviewers = crg.get_reviewers_for_file("app.py")
+  print(reviewers)
+
+🎯 EXPECTED OUTPUT EXAMPLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+get_review_stats() returns:
+{
+  'total_reviews': 5,
+  'total_reviewers': 3,
+  'total_files': 4,
+  'avg_reviewers_per_file': 1.25
+}
+
+get_reviewer_workload() returns:
+{
+  'राज': 3,
+  'प्रिया': 1,
+  'रोहन': 1
+}
+
+get_file_review_count() returns:
+{
+  'models.py': 2,
+  'views.py': 1,
+  'api.py': 2
+}
+
+get_reviewers_for_file() returns:
+['राज', 'प्रिया']
+
+get_files_for_reviewer() returns:
+['models.py', 'views.py']
+
+📞 QUICK Q&A
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Q: कोई नया reviewer कैसे add करूं?
+A: crg.add_reviewer("नाम", ["skill1", "skill2"])
+
+Q: किसी file को कितने लोगों ने review किया?
+A: len(crg.get_reviewers_for_file("file.py"))
+
+Q: किसी reviewer ने कितने reviews किए?
+A: len(crg.get_files_for_reviewer("राज"))
+
+Q: सबसे busy reviewer कौन है?
+A: max(analyzer.get_reviewer_workload(), key=...)
+
+Q: सबसे कम busy reviewer कौन है?
+A: min(analyzer.get_reviewer_workload(), key=...)
+
+Q: Graph को save कैसे करूं?
+A: import pickle; pickle.dump(crg, open('graph.pkl', 'wb'))
+
+🚀 NEXT STEPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. अपनी टीम का data तैयार करें
+2. code-review-graph को import करें
+3. Team members को add करें
+4. Current reviews को add करें
+5. Weekly analysis करें
+6. Process improve करें
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                  🎉 आप सभी चीज़ें सीख गए! 🎉                             ║
+║                                                                            ║
+║  अब अपना पहला graph बनाइए और reviews track करना शुरू करिए!              ║
+╚════════════════════════════════════════════════════════════════════════════╝

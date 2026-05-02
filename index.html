@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudhir Yadav - Code Review Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-btn.active {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Main Container */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* Stats Card */
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            color: var(--success);
+            margin-top: 8px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Buttons */
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* Cards List */
+        .card-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .card-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .card-item:hover {
+            border-color: var(--primary);
+            background: var(--bg-hover);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Learning Portal */
+        .lesson-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lesson-card:hover {
+            transform: translateX(8px);
+            border-color: var(--primary);
+        }
+
+        .lesson-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .lesson-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .lesson-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #a1e8ff;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-hover);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .nav-btn {
+                width: 100%;
+                text-align: left;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 24px;
+            }
+        }
+
+        /* Animations */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -50px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Section Header */
+        .section-header {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                📊 Sudhir Yadav - Code Review Dashboard
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="nav-btn" onclick="switchTab('manage')">Manage</button>
+                <button class="nav-btn" onclick="switchTab('learn')">Learn</button>
+                <button class="nav-btn" onclick="switchTab('analytics')">Analytics</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="section-header">
+                <h1 class="section-title">आपकी Code Review Dashboard</h1>
+                <p class="section-subtitle">अपनी टीम के reviews को track करें और analyze करें</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Reviews</div>
+                    <div class="stat-value" id="totalReviews">0</div>
+                    <div class="stat-change">↑ 12% from last week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Team Members</div>
+                    <div class="stat-value" id="teamCount">0</div>
+                    <div class="stat-change">Active members</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Approved</div>
+                    <div class="stat-value" id="approved">0</div>
+                    <div class="stat-change">Avg: 2.5 reviews/day</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-value" id="pending">0</div>
+                    <div class="stat-change">Needs attention</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 40px;">
+                <h2 style="margin-bottom: 20px;">Recent Reviews</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reviewer</th>
+                                <th>File</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reviewTable">
+                            <tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">कोई reviews अभी नहीं हैं</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Tab -->
+        <div id="manage" class="tab-content">
+            <div class="section-header">
+                <h1 class="section-title">Reviews Manage करें</h1>
+                <p class="section-subtitle">नए reviewers, files और reviews जोड़ें</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-bottom: 40px;">
+                <!-- Add Reviewer -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                    <h3 style="margin-bottom: 20px;">👤 Reviewer जोड़ें</h3>
+                    <div class="form-group">
+                        <label>नाम</label>
+                        <input type="text" id="reviewerName" placeholder="राज, प्रिया...">
+                    </div>
+                    <div class="form-group">
+                        <label>Skills (comma separated)</label>
+                        <input type="text" id="reviewerSkills" placeholder="Python, Backend...">
+                    </div>
+                    <button class="btn-primary" onclick="addReviewer()" style="width: 100%;">Reviewer Add करें</button>
+                </div>
+
+                <!-- Add File -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                    <h3 style="margin-bottom: 20px;">📁 File जोड़ें</h3>
+                    <div class="form-group">
+                        <label>File Name</label>
+                        <input type="text" id="fileName" placeholder="models.py, app.jsx...">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>File Type</label>
+                        <select id="fileType">
+                            <option>Python</option>
+                            <option>JavaScript</option>
+                            <option>SQL</option>
+                            <option>YAML</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="addFile()" style="width: 100%;">File Add करें</button>
+                </div>
+
+                <!-- Add Review -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                    <h3 style="margin-bottom: 20px;">✅ Review जोड़ें</h3>
+                    <div class="form-group">
+                        <label>Reviewer</label>
+                        <select id="reviewerSelect">
+                            <option>-- Select reviewer --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>File</label>
+                        <select id="fileSelect">
+                            <option>-- Select file --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="reviewStatus">
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="addReview()" style="width: 100%;">Review Add करें</button>
+                </div>
+            </div>
+
+            <!-- Teams List -->
+            <h3 style="margin-bottom: 20px;">👥 Reviewers</h3>
+            <div class="card-list" id="reviewersList">
+                <p style="color: var(--text-secondary);">कोई reviewers अभी नहीं हैं</p>
+            </div>
+        </div>
+
+        <!-- Learn Tab -->
+        <div id="learn" class="tab-content">
+            <div class="section-header">
+                <h1 class="section-title">Code Review सीखें</h1>
+                <p class="section-subtitle">Step-by-step tutorials और examples</p>
+            </div>
+
+            <div class="lesson-card" onclick="showLesson(1)">
+                <div class="lesson-number">1</div>
+                <div class="lesson-title">शुरुआत करें - 30 सेकंड में</div>
+                <div class="lesson-description">अपना पहला review graph कैसे बनाएं। Basic setup से शुरू करें।</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="lesson-card" onclick="showLesson(2)">
+                <div class="lesson-number">2</div>
+                <div class="lesson-title">Reviewers और Files जोड़ें</div>
+                <div class="lesson-description">अपनी टीम को setup करें और code files को track करना सीखें।</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="lesson-card" onclick="showLesson(3)">
+                <div class="lesson-number">3</div>
+                <div class="lesson-title">Reviews Add करें और Analyze करें</div>
+                <div class="lesson-description">Reviews जोड़ना और workload analysis करना सीखें।</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="lesson-card" onclick="showLesson(4)">
+                <div class="lesson-number">4</div>
+                <div class="lesson-title">Advanced: Reports Generate करें</div>
+                <div class="lesson-description">Weekly/monthly reports बनाएं और team metrics analyze करें।</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="section-header">
+                <h1 class="section-title">Analytics & Reports</h1>
+                <p class="section-subtitle">Team performance और workload analysis</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div style="grid-column: 1 / -1;">
+                    <div class="stat-card">
+                        <div style="margin-bottom: 20px;">
+                            <h3>👥 Reviewer Workload</h3>
+                        </div>
+                        <div id="workloadChart" style="color: var(--text-secondary); text-align: center; padding: 40px 20px;">
+                            No data yet. Add reviews to see analytics.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3 style="margin-bottom: 16px;">📊 Status Distribution</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1; text-align: center;">
+                            <div style="font-size: 20px; color: var(--success);" id="statusApproved">0</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">Approved</div>
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            <div style="font-size: 20px; color: var(--warning);" id="statusPending">0</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">Pending</div>
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            <div style="font-size: 20px; color: var(--danger);" id="statusRejected">0</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">Rejected</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3 style="margin-bottom: 16px;">📈 Team Performance</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 14px;">Average Reviews</span>
+                                <span id="avgReviews" style="font-weight: 600;">0</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="avgProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Lessons -->
+    <div id="lessonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="lessonTitle">Lesson</span>
+                <button class="modal-close" onclick="closeLesson()">×</button>
+            </div>
+            <div id="lessonContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let data = {
+            reviewers: [],
+            files: [],
+            reviews: []
+        };
+
+        // Load from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('codeReviewData');
+            if (saved) {
+                data = JSON.parse(saved);
+                updateUI();
+            }
+        }
+
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('codeReviewData', JSON.stringify(data));
+        }
+
+        // Add Reviewer
+        function addReviewer() {
+            const name = document.getElementById('reviewerName').value.trim();
+            const skills = document.getElementById('reviewerSkills').value.split(',').map(s => s.trim());
+
+            if (!name) {
+                alert('कृपया नाम दर्ज करें');
+                return;
+            }
+
+            data.reviewers.push({ name, skills });
+            document.getElementById('reviewerName').value = '';
+            document.getElementById('reviewerSkills').value = '';
+            saveData();
+            updateUI();
+        }
+
+        // Add File
+        function addFile() {
+            const name = document.getElementById('fileName').value.trim();
+            const type = document.getElementById('fileType').value;
+
+            if (!name) {
+                alert('कृपया file का नाम दर्ज करें');
+                return;
+            }
+
+            data.files.push({ name, type });
+            document.getElementById('fileName').value = '';
+            saveData();
+            updateUI();
+        }
+
+        // Add Review
+        function addReview() {
+            const reviewer = document.getElementById('reviewerSelect').value;
+            const file = document.getElementById('fileSelect').value;
+            const status = document.getElementById('reviewStatus').value;
+
+            if (!reviewer || !file) {
+                alert('कृपया reviewer और file दोनों select करें');
+                return;
+            }
+
+            data.reviews.push({
+                reviewer,
+                file,
+                status,
+                timestamp: new Date().toLocaleTimeString('hi-IN')
+            });
+
+            saveData();
+            updateUI();
+        }
+
+        // Update UI
+        function updateUI() {
+            updateStats();
+            updateSelects();
+            updateReviewsList();
+            updateReviewTable();
+            updateAnalytics();
+        }
+
+        function updateStats() {
+            document.getElementById('totalReviews').textContent = data.reviews.length;
+            document.getElementById('teamCount').textContent = data.reviewers.length;
+            document.getElementById('approved').textContent = data.reviews.filter(r => r.status === 'approved').length;
+            document.getElementById('pending').textContent = data.reviews.filter(r => r.status === 'pending').length;
+        }
+
+        function updateSelects() {
+            const reviewerSelect = document.getElementById('reviewerSelect');
+            const fileSelect = document.getElementById('fileSelect');
+
+            reviewerSelect.innerHTML = '<option>-- Select reviewer --</option>';
+            fileSelect.innerHTML = '<option>-- Select file --</option>';
+
+            data.reviewers.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.name;
+                option.textContent = r.name;
+                reviewerSelect.appendChild(option);
+            });
+
+            data.files.forEach(f => {
+                const option = document.createElement('option');
+                option.value = f.name;
+                option.textContent = f.name;
+                fileSelect.appendChild(option);
+            });
+        }
+
+        function updateReviewsList() {
+            const container = document.getElementById('reviewersList');
+            if (data.reviewers.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">कोई reviewers अभी नहीं हैं</p>';
+                return;
+            }
+
+            container.innerHTML = data.reviewers.map(reviewer => {
+                const reviewCount = data.reviews.filter(r => r.reviewer === reviewer.name).length;
+                return `
+                    <div class="card-item">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${reviewer.name}</div>
+                                <div class="card-subtitle">${reviewer.skills.join(', ')}</div>
+                            </div>
+                            <span style="font-size: 24px; font-weight: 700; color: var(--primary);">${reviewCount}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateReviewTable() {
+            const tbody = document.getElementById('reviewTable');
+            if (data.reviews.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">कोई reviews अभी नहीं हैं</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.reviews.map(review => {
+                let badgeClass = 'badge-pending';
+                if (review.status === 'approved') badgeClass = 'badge-success';
+                if (review.status === 'rejected') badgeClass = 'badge-rejected';
+
+                return `
+                    <tr>
+                        <td>${review.reviewer}</td>
+                        <td>${review.file}</td>
+                        <td><span class="badge ${badgeClass}">${review.status}</span></td>
+                        <td style="color: var(--text-secondary);">${review.timestamp}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateAnalytics() {
+            const approved = data.reviews.filter(r => r.status === 'approved').length;
+            const pending = data.reviews.filter(r => r.status === 'pending').length;
+            const rejected = data.reviews.filter(r => r.status === 'rejected').length;
+
+            document.getElementById('statusApproved').textContent = approved;
+            document.getElementById('statusPending').textContent = pending;
+            document.getElementById('statusRejected').textContent = rejected;
+
+            // Workload Chart
+            if (data.reviewers.length > 0) {
+                const workload = data.reviewers.map(r => ({
+                    name: r.name,
+                    count: data.reviews.filter(rev => rev.reviewer === r.name).length
+                }));
+
+                const html = workload.map(w => `
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <span>${w.name}</span>
+                            <span style="font-weight: 600;">${w.count}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(w.count / Math.max(...workload.map(x => x.count), 1)) * 100}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('workloadChart').innerHTML = html || 'No data';
+            }
+
+            // Average Reviews
+            const avg = data.reviewers.length > 0 ? 
+                (data.reviews.length / data.reviewers.length).toFixed(1) : 0;
+            document.getElementById('avgReviews').textContent = avg;
+            document.getElementById('avgProgress').style.width = Math.min(avg * 10, 100) + '%';
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Lesson Modal
+        const lessons = {
+            1: {
+                title: 'शुरुआत करें - 30 सेकंड में',
+                content: `
+                    <h3>अपना पहला Graph बनाएं</h3>
+                    <p style="color: var(--text-secondary); margin: 12px 0;">
+                        यह सबसे आसान तरीका है code reviews को track करना शुरू करने का।
+                    </p>
+                    <div class="code-block">
+from code_review_graph import CodeReviewGraph
+
+crg = CodeReviewGraph()
+crg.add_reviewer("राज", ["Python"])
+crg.add_code_file("app.py")
+crg.add_review("राज", "app.py", "approved")
+                    </div>
+                    <p style="color: var(--text-secondary);">बस! आपका पहला review graph तैयार है। अब इसे analyze करें।</p>
+                `
+            },
+            2: {
+                title: 'Reviewers और Files जोड़ें',
+                content: `
+                    <h3>अपनी टीम को Setup करें</h3>
+                    <p style="color: var(--text-secondary); margin: 12px 0;">
+                        Multiple reviewers और files जोड़ना आसान है।
+                    </p>
+                    <div class="code-block">
+# Multiple reviewers जोड़ें
+crg.add_reviewer("अमित", ["Python", "Backend"])
+crg.add_reviewer("प्रिया", ["React", "Frontend"])
+
+# Multiple files जोड़ें
+for file in ["models.py", "views.py", "api.py"]:
+    crg.add_code_file(file)
+                    </div>
+                    <p style="color: var(--text-secondary); margin-top: 16px;">आपकी टीम के लिए अलग-अलग expertise के साथ reviewers जोड़ें।</p>
+                `
+            },
+            3: {
+                title: 'Reviews Add करें और Analyze करें',
+                content: `
+                    <h3>Reviews Track करना शुरू करें</h3>
+                    <p style="color: var(--text-secondary); margin: 12px 0;">
+                        Reviews जोड़ें और फिर उन्हें analyze करें।
+                    </p>
+                    <div class="code-block">
+# Reviews जोड़ें
+crg.add_review("अमित", "models.py", "approved")
+crg.add_review("प्रिया", "api.py", "pending")
+
+# Analyze करें
+analyzer = ReviewAnalyzer(crg)
+stats = analyzer.get_review_stats()
+workload = analyzer.get_reviewer_workload()
+                    </div>
+                    <p style="color: var(--text-secondary); margin-top: 16px;">Stats देखें:</p>
+                    <div class="code-block" style="margin-top: 12px;">
+print(stats)
+# {
+#   'total_reviews': 2,
+#   'total_reviewers': 2,
+#   'avg_reviewers_per_file': 1.0
+# }
+                    </div>
+                `
+            },
+            4: {
+                title: 'Advanced: Reports Generate करें',
+                content: `
+                    <h3>Weekly Reports और Analysis</h3>
+                    <p style="color: var(--text-secondary); margin: 12px 0;">
+                        अपनी टीम के performance को track करें और improvements identify करें।
+                    </p>
+                    <div class="code-block">
+def generate_report(crg):
+    analyzer = ReviewAnalyzer(crg)
+    stats = analyzer.get_review_stats()
+    workload = analyzer.get_reviewer_workload()
+    
+    print(f"Total Reviews: {stats['total_reviews']}")
+    print(f"Team: {stats['total_reviewers']}")
+    
+    for reviewer, count in workload.items():
+        print(f"{reviewer}: {count} reviews")
+
+generate_report(crg)
+                    </div>
+                    <p style="color: var(--text-secondary); margin-top: 16px;">अपनी टीम का workload balance करें और process improve करें!</p>
+                `
+            }
+        };
+
+        function showLesson(num) {
+            const lesson = lessons[num];
+            document.getElementById('lessonTitle').textContent = lesson.title;
+            document.getElementById('lessonContent').innerHTML = lesson.content;
+            document.getElementById('lessonModal').classList.add('active');
+        }
+
+        function closeLesson() {
+            document.getElementById('lessonModal').classList.remove('active');
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>

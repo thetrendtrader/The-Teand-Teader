@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudhir Yadav - Advanced Code Review Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #cbd5e1;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255,255,255,0.25);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(99,102,241,0.15);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99,102,241,0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-card);
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-card);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-light);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(99,102,241,0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .badge-pending { background: rgba(245,158,11,0.1); color: var(--warning); }
+        .badge-rejected { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .badge-info { background: rgba(59,130,246,0.1); color: var(--info); }
+
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .success-msg, .error-msg {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .success-msg {
+            background: rgba(16,185,129,0.1);
+            color: var(--success);
+        }
+
+        .error-msg {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">📊 Sudhir Yadav - Advanced Platform</div>
+            <div class="nav-tabs">
+                <button class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="nav-btn" onclick="switchTab('manage')">Manage</button>
+                <button class="nav-btn" onclick="switchTab('reports')">Reports</button>
+                <button class="nav-btn" onclick="switchTab('team')">Team</button>
+                <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h1 class="section-title">📊 Dashboard</h1>
+            <p class="section-subtitle">आपकी code review team का complete overview</p>
+
+            <div class="stats-overview" id="statsContainer"></div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px;">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 15px;">Reviews Status</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 15px;">Reviewer Performance</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h3 style="margin-bottom: 15px;">Recent Activity</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reviewer</th>
+                                <th>File</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTable">
+                            <tr><td colspan="5" style="text-align: center;">No data yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Tab -->
+        <div id="manage" class="tab-content">
+            <h1 class="section-title">🛠️ Manage Reviews</h1>
+            <p class="section-subtitle">अपने reviewers, files और reviews को manage करें</p>
+
+            <div class="action-buttons">
+                <button class="btn" onclick="openModal('addReviewerModal')">➕ Reviewer जोड़ें</button>
+                <button class="btn" onclick="openModal('addFileModal')">📁 File जोड़ें</button>
+                <button class="btn" onclick="openModal('addReviewModal')">✅ Review जोड़ें</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
+                <div>
+                    <h3 style="margin-bottom: 15px;">👥 Reviewers ({reviewerCount})</h3>
+                    <div id="reviewersList" style="max-height: 500px; overflow-y: auto;"></div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 15px;">📁 Files ({fileCount})</h3>
+                    <div id="filesList" style="max-height: 500px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <h1 class="section-title">📈 Reports & Analytics</h1>
+            <p class="section-subtitle">अपनी team के performance को analyze करें</p>
+
+            <div class="action-buttons">
+                <button class="btn" onclick="generateReport()">📄 Report Generate करें</button>
+                <button class="btn btn-secondary" onclick="exportCSV()">💾 CSV Download करें</button>
+                <button class="btn btn-secondary" onclick="exportJSON()">📊 JSON Download करें</button>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3 style="margin-bottom: 10px;">⏱️ Average Review Time</h3>
+                    <div class="stat-value" id="avgReviewTime">0 hrs</div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 10px;">🎯 Approval Rate</h3>
+                    <div class="stat-value" id="approvalRate">0%</div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 10px;">📊 Files Reviewed</h3>
+                    <div class="stat-value" id="filesReviewed">0</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 style="margin-bottom: 15px;">Weekly Activity Trend</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+
+            <div id="reportOutput" style="display: none; margin-top: 30px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                <h3 style="margin-bottom: 15px;">📋 Report Details</h3>
+                <div id="reportContent"></div>
+            </div>
+        </div>
+
+        <!-- Team Tab -->
+        <div id="team" class="tab-content">
+            <h1 class="section-title">👥 Team Management</h1>
+            <p class="section-subtitle">अपनी team members को manage करें</p>
+
+            <div id="teamList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;"></div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <h1 class="section-title">⚙️ Settings</h1>
+            <p class="section-subtitle">अपनी preferences और data को manage करें</p>
+
+            <div class="card" style="max-width: 600px;">
+                <h3 style="margin-bottom: 20px;">🗑️ Data Management</h3>
+                
+                <label>Backup Your Data</label>
+                <p style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;">अपना सारा data download करें</p>
+                <button class="btn btn-secondary" onclick="backupData()" style="width: 100%;">📥 Backup Download करें</button>
+
+                <label style="margin-top: 20px;">Clear All Data</label>
+                <p style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;">सावधानी: यह action reverse नहीं हो सकता</p>
+                <button class="btn btn-danger" onclick="clearAllData()" style="width: 100%;">🗑️ सभी Data Clear करें</button>
+
+                <label style="margin-top: 20px;">Import Data</label>
+                <p style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;">Backup से data import करें</p>
+                <input type="file" id="fileInput" accept=".json" style="margin: 10px 0;">
+                <button class="btn btn-secondary" onclick="importData()" style="width: 100%;">📤 Data Import करें</button>
+            </div>
+
+            <div class="card" style="max-width: 600px; margin-top: 20px;">
+                <h3 style="margin-bottom: 20px;">ℹ️ About</h3>
+                <p style="color: var(--text-light); margin-bottom: 10px;">
+                    <strong>Platform:</strong> Sudhir Yadav - Advanced Code Review Dashboard<br>
+                    <strong>Version:</strong> 2.0<br>
+                    <strong>Created:</strong> 2024-05-01<br>
+                    <strong>Type:</strong> Team Collaboration Tool<br>
+                    <strong>Storage:</strong> Local Browser Storage<br>
+                    <strong>Status:</strong> ✅ Active & Updated
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="addReviewerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👤 Reviewer जोड़ें</h2>
+                <button class="close-btn" onclick="closeModal('addReviewerModal')">×</button>
+            </div>
+            <div class="form-group">
+                <label>नाम</label>
+                <input type="text" id="reviewerName" placeholder="नाम दर्ज करें">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="reviewerEmail" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label>Skills (comma separated)</label>
+                <input type="text" id="reviewerSkills" placeholder="Python, Backend, Database...">
+            </div>
+            <button class="btn" onclick="addReviewer()" style="width: 100%;">✅ Reviewer जोड़ें</button>
+        </div>
+    </div>
+
+    <div id="addFileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📁 File जोड़ें</h2>
+                <button class="close-btn" onclick="closeModal('addFileModal')">×</button>
+            </div>
+            <div class="form-group">
+                <label>File Name</label>
+                <input type="text" id="fileName" placeholder="models.py, app.jsx...">
+            </div>
+            <div class="form-group">
+                <label>File Type</label>
+                <select id="fileType">
+                    <option>Python</option>
+                    <option>JavaScript</option>
+                    <option>SQL</option>
+                    <option>YAML</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="fileDescription" placeholder="File का description..." style="height: 100px;"></textarea>
+            </div>
+            <button class="btn" onclick="addFile()" style="width: 100%;">✅ File जोड़ें</button>
+        </div>
+    </div>
+
+    <div id="addReviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✅ Review जोड़ें</h2>
+                <button class="close-btn" onclick="closeModal('addReviewModal')">×</button>
+            </div>
+            <div class="form-group">
+                <label>Reviewer</label>
+                <select id="reviewerSelect">
+                    <option>-- Select reviewer --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>File</label>
+                <select id="fileSelect">
+                    <option>-- Select file --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="reviewStatus">
+                    <option value="pending">⏳ Pending</option>
+                    <option value="approved">✅ Approved</option>
+                    <option value="rejected">❌ Rejected</option>
+                    <option value="changes">🔄 Changes Needed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Comments</label>
+                <textarea id="reviewComments" placeholder="अपना feedback दें..." style="height: 100px;"></textarea>
+            </div>
+            <button class="btn" onclick="addReview()" style="width: 100%;">✅ Review जोड़ें</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Management
+        let data = {
+            reviewers: [],
+            files: [],
+            reviews: []
+        };
+
+        // Charts
+        let statusChart, performanceChart, trendChart;
+
+        function loadData() {
+            const saved = localStorage.getItem('codeReviewDataV2');
+            if (saved) {
+                try {
+                    data = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Data load error:', e);
+                }
+            }
+            updateUI();
+        }
+
+        function saveData() {
+            localStorage.setItem('codeReviewDataV2', JSON.stringify(data));
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Add Functions
+        function addReviewer() {
+            const name = document.getElementById('reviewerName').value.trim();
+            const email = document.getElementById('reviewerEmail').value.trim();
+            const skills = document.getElementById('reviewerSkills').value.split(',').map(s => s.trim());
+
+            if (!name || !email) {
+                alert('कृपया सभी fields भरें');
+                return;
+            }
+
+            data.reviewers.push({
+                id: Date.now(),
+                name,
+                email,
+                skills,
+                joinDate: new Date().toLocaleDateString('hi-IN')
+            });
+
+            document.getElementById('reviewerName').value = '';
+            document.getElementById('reviewerEmail').value = '';
+            document.getElementById('reviewerSkills').value = '';
+            closeModal('addReviewerModal');
+            saveData();
+            updateUI();
+            showSuccess('Reviewer added successfully!');
+        }
+
+        function addFile() {
+            const name = document.getElementById('fileName').value.trim();
+            const type = document.getElementById('fileType').value;
+            const description = document.getElementById('fileDescription').value.trim();
+
+            if (!name) {
+                alert('कृपया file का नाम दर्ज करें');
+                return;
+            }
+
+            data.files.push({
+                id: Date.now(),
+                name,
+                type,
+                description,
+                addedDate: new Date().toLocaleDateString('hi-IN')
+            });
+
+            document.getElementById('fileName').value = '';
+            document.getElementById('fileDescription').value = '';
+            closeModal('addFileModal');
+            saveData();
+            updateUI();
+            showSuccess('File added successfully!');
+        }
+
+        function addReview() {
+            const reviewer = document.getElementById('reviewerSelect').value;
+            const file = document.getElementById('fileSelect').value;
+            const status = document.getElementById('reviewStatus').value;
+            const comments = document.getElementById('reviewComments').value.trim();
+
+            if (!reviewer || !file) {
+                alert('कृपया reviewer और file दोनों select करें');
+                return;
+            }
+
+            data.reviews.push({
+                id: Date.now(),
+                reviewer,
+                file,
+                status,
+                comments,
+                timestamp: new Date().toLocaleString('hi-IN')
+            });
+
+            document.getElementById('reviewComments').value = '';
+            closeModal('addReviewModal');
+            saveData();
+            updateUI();
+            showSuccess('Review added successfully!');
+        }
+
+        // UI Update
+        function updateUI() {
+            updateStats();
+            updateSelects();
+            updateReviewersList();
+            updateFilesList();
+            updateActivityTable();
+            updateTeamList();
+            updateCharts();
+        }
+
+        function updateStats() {
+            const stats = [
+                { label: 'Total Reviews', value: data.reviews.length },
+                { label: 'Team Members', value: data.reviewers.length },
+                { label: 'Files', value: data.files.length },
+                { label: 'Approved', value: data.reviews.filter(r => r.status === 'approved').length }
+            ];
+
+            const html = stats.map(s => `
+                <div class="card">
+                    <div class="stat-label">${s.label}</div>
+                    <div class="stat-value">${s.value}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('statsContainer').innerHTML = html;
+        }
+
+        function updateSelects() {
+            const reviewerSelect = document.getElementById('reviewerSelect');
+            const fileSelect = document.getElementById('fileSelect');
+
+            reviewerSelect.innerHTML = '<option>-- Select reviewer --</option>';
+            fileSelect.innerHTML = '<option>-- Select file --</option>';
+
+            data.reviewers.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.name;
+                option.textContent = r.name;
+                reviewerSelect.appendChild(option);
+            });
+
+            data.files.forEach(f => {
+                const option = document.createElement('option');
+                option.value = f.name;
+                option.textContent = f.name;
+                fileSelect.appendChild(option);
+            });
+        }
+
+        function updateReviewersList() {
+            const container = document.getElementById('reviewersList');
+            if (data.reviewers.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-light);">कोई reviewers नहीं</p>';
+                return;
+            }
+
+            const html = data.reviewers.map(r => {
+                const count = data.reviews.filter(rev => rev.reviewer === r.name).length;
+                return `
+                    <div class="card" style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <strong>${r.name}</strong>
+                                <p style="font-size: 12px; color: var(--text-light);">${r.email}</p>
+                                <p style="font-size: 12px; color: var(--text-light);">${r.skills.join(', ')}</p>
+                            </div>
+                            <span style="font-size: 20px; color: var(--primary);">${count}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function updateFilesList() {
+            const container = document.getElementById('filesList');
+            if (data.files.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-light);">कोई files नहीं</p>';
+                return;
+            }
+
+            const html = data.files.map(f => {
+                const count = data.reviews.filter(r => r.file === f.name).length;
+                return `
+                    <div class="card" style="margin-bottom: 10px;">
+                        <strong>${f.name}</strong>
+                        <p style="font-size: 12px; color: var(--text-light);">${f.type}</p>
+                        <div style="margin-top: 5px;">
+                            <span class="badge badge-info">${count} reviews</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function updateActivityTable() {
+            const tbody = document.getElementById('activityTable');
+            if (data.reviews.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">कोई activity नहीं</td></tr>';
+                return;
+            }
+
+            const html = data.reviews.slice().reverse().map(r => {
+                let badgeClass = 'badge-pending';
+                if (r.status === 'approved') badgeClass = 'badge-success';
+                if (r.status === 'rejected') badgeClass = 'badge-rejected';
+
+                return `
+                    <tr>
+                        <td>${r.reviewer}</td>
+                        <td>${r.file}</td>
+                        <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                        <td style="font-size: 12px;">${r.timestamp}</td>
+                        <td>
+                            <button class="btn-secondary" onclick="deleteReview(${r.id})" style="padding: 5px 10px; font-size: 12px;">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = html;
+        }
+
+        function updateTeamList() {
+            const container = document.getElementById('teamList');
+            if (data.reviewers.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1;">कोई team members नहीं</p>';
+                return;
+            }
+
+            const html = data.reviewers.map(r => {
+                const reviews = data.reviews.filter(rev => rev.reviewer === r.name);
+                const approved = reviews.filter(rev => rev.status === 'approved').length;
+                const pending = reviews.filter(rev => rev.status === 'pending').length;
+
+                return `
+                    <div class="card">
+                        <h3 style="margin-bottom: 10px;">${r.name}</h3>
+                        <p style="color: var(--text-light); font-size: 14px; margin-bottom: 10px;">${r.email}</p>
+                        <p style="color: var(--text-light); font-size: 12px; margin-bottom: 15px;">
+                            <strong>Skills:</strong> ${r.skills.join(', ')}
+                        </p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 18px; font-weight: 700; color: var(--success);">${approved}</div>
+                                <div style="font-size: 12px; color: var(--text-light);">Approved</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 18px; font-weight: 700; color: var(--warning);">${pending}</div>
+                                <div style="font-size: 12px; color: var(--text-light);">Pending</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar" style="margin-top: 15px;">
+                            <div class="progress-fill" style="width: ${reviews.length > 0 ? (approved/reviews.length*100) : 0}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function updateCharts() {
+            // Status Chart
+            const approved = data.reviews.filter(r => r.status === 'approved').length;
+            const pending = data.reviews.filter(r => r.status === 'pending').length;
+            const rejected = data.reviews.filter(r => r.status === 'rejected').length;
+
+            const ctx1 = document.getElementById('statusChart');
+            if (statusChart) statusChart.destroy();
+            statusChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Approved', 'Pending', 'Rejected'],
+                    datasets: [{
+                        data: [approved, pending, rejected],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderColor: '#1e293b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1' }
+                        }
+                    }
+                }
+            });
+
+            // Performance Chart
+            const reviewerData = {};
+            data.reviewers.forEach(r => {
+                reviewerData[r.name] = data.reviews.filter(rev => rev.reviewer === r.name).length;
+            });
+
+            const ctx2 = document.getElementById('performanceChart');
+            if (performanceChart) performanceChart.destroy();
+            performanceChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(reviewerData),
+                    datasets: [{
+                        label: 'Reviews',
+                        data: Object.values(reviewerData),
+                        backgroundColor: '#6366f1',
+                        borderColor: '#4f46e5'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#cbd5e1' }
+                        },
+                        y: {
+                            ticks: { color: '#cbd5e1' }
+                        }
+                    }
+                }
+            });
+
+            // Trend Chart
+            const ctx3 = document.getElementById('trendChart');
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Reviews',
+                        data: [5, 8, 6, 9, 7, 4, 3],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper Functions
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function deleteReview(id) {
+            if (confirm('क्या आप यह review delete करना चाहते हैं?')) {
+                data.reviews = data.reviews.filter(r => r.id !== id);
+                saveData();
+                updateUI();
+                showSuccess('Review deleted successfully!');
+            }
+        }
+
+        function generateReport() {
+            const total = data.reviews.length;
+            const approved = data.reviews.filter(r => r.status === 'approved').length;
+            const approvalRate = total > 0 ? ((approved / total) * 100).toFixed(2) : 0;
+
+            const html = `
+                <p><strong>Total Reviews:</strong> ${total}</p>
+                <p><strong>Approved:</strong> ${approved}</p>
+                <p><strong>Approval Rate:</strong> ${approvalRate}%</p>
+                <p><strong>Team Members:</strong> ${data.reviewers.length}</p>
+                <p><strong>Files Reviewed:</strong> ${data.files.length}</p>
+                <p><strong>Generated:</strong> ${new Date().toLocaleString('hi-IN')}</p>
+            `;
+
+            document.getElementById('reportOutput').style.display = 'block';
+            document.getElementById('reportContent').innerHTML = html;
+        }
+
+        function exportCSV() {
+            let csv = 'Reviewer,File,Status,Timestamp,Comments\n';
+            data.reviews.forEach(r => {
+                csv += `"${r.reviewer}","${r.file}","${r.status}","${r.timestamp}","${r.comments}"\n`;
+            });
+
+            downloadFile(csv, 'code-review-report.csv', 'text/csv');
+        }
+
+        function exportJSON() {
+            const json = JSON.stringify(data, null, 2);
+            downloadFile(json, 'code-review-data.json', 'application/json');
+        }
+
+        function backupData() {
+            const json = JSON.stringify(data, null, 2);
+            downloadFile(json, 'code-review-backup.json', 'application/json');
+            showSuccess('Backup downloaded successfully!');
+        }
+
+        function importData() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) {
+                alert('कृपया एक file select करें');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    data = JSON.parse(e.target.result);
+                    saveData();
+                    updateUI();
+                    showSuccess('Data imported successfully!');
+                } catch (error) {
+                    alert('Invalid file format!');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('सावधानी: यह सभी data delete कर देगा। क्या आप सुनिश्चित हैं?')) {
+                if (confirm('यह action reverse नहीं हो सकता। फिर से confirm करें:')) {
+                    data = { reviewers: [], files: [], reviews: [] };
+                    localStorage.clear();
+                    updateUI();
+                    showSuccess('All data cleared!');
+                }
+            }
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showSuccess(msg) {
+            const div = document.createElement('div');
+            div.className = 'success-msg';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
